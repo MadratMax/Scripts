@@ -5,7 +5,22 @@ param (
 	[string]$node2 = "StackTrace"
 )
 if (Test-Path "$testResultsFile") {
-$ns = @{dns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+$nameSpaceRegex = 'xmlns(?<content>.*)'
+foreach($line in Get-Content $testResultsFile) {
+    if($line -match $nameSpaceRegex){
+		$nm = $matches['content'].split("`n")|%{
+		$_.split('"')[1]
+		}	
+			if($nm -eq $Null){
+				$nm = $matches['content'].split("`n")|%{
+				$_.split("'")[1]
+			}	
+		}
+    }
+}
+Write-Host $nm
+
+$ns = @{dns="$nm"}
 [xml]$xml = Get-Content $testResultsFile
 $errorText = Select-Xml -Path "$testResultsFile" -XPath "//dns:$node1" -Namespace $ns | foreach {$_.node} | select
 $stackTraceErrorText = Select-Xml -Path "$testResultsFile" -XPath "//dns:$node2" -Namespace $ns | foreach {$_.node} | select
