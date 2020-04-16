@@ -16,6 +16,7 @@ param (
 $content = (Get-Content $inputJson | ConvertFrom-Json)
 
 if($PSBoundParameters.Count -eq 2){
+$content | ConvertTo-Json -depth 32 | Out-Null
 $content = $content.$key1
 }
 if($PSBoundParameters.Count -eq 3){
